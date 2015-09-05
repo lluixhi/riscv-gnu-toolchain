@@ -2,11 +2,12 @@ srcdir := @abs_top_srcdir@
 builddir := @abs_top_builddir@
 INSTALL_DIR := @prefix@
 
-PACKAGES := binutils gcc glibc newlib
+PACKAGES := binutils gcc glibc newlib musl
 gcc_version := 5.3.0
 binutils_version := 2.26
 glibc_version := 2.23
 newlib_version := 2.2.0
+musl_version := 1.1.11
 
 DISTDIR ?= /var/cache/distfiles
 GNU_MIRROR := http://mirrors.kernel.org/gnu
@@ -14,6 +15,7 @@ gcc_url := $(GNU_MIRROR)/gcc/gcc-$(gcc_version)/gcc-$(gcc_version).tar.gz
 binutils_url := $(GNU_MIRROR)/binutils/binutils-$(binutils_version).tar.gz
 glibc_url := $(GNU_MIRROR)/glibc/glibc-$(glibc_version).tar.gz
 newlib_url := ftp://sourceware.org/pub/newlib/newlib-$(newlib_version).tar.gz
+musl_url := http://www.musl-libc.org/releases/musl-$(musl_version).tar.gz
 
 XLEN ?= @XLEN@
 WITH_ARCH ?= @WITH_ARCH@
@@ -51,6 +53,8 @@ ASFLAGS_FOR_TARGET := $(ASFLAGS_FOR_TARGET_EXTRA) $(FLOAT_ASFLAGS)
 all: @default_target@
 
 newlib: stamps/build-gcc-newlib
+
+musl: stamps/build-gcc-musl-stage2
 
 ifneq ($(findstring --disable-multilib,$(MULTILIB_FLAGS)),)
 linux: stamps/build-gcc-linux-stage2
@@ -117,6 +121,90 @@ $(addprefix $(srcdir)/patches/,$(PACKAGES)): $(srcdir)/patches/%: src/%
 	$(srcdir)/scripts/cp_s $(srcdir)/$(notdir $@) $<
 
 patches: $(addprefix $(srcdir)/patches/,$(PACKAGES))
+
+stamps/build-binutils-musl: src/binutils
+	rm -rf $@ $(notdir $@)
+	mkdir $(notdir $@)
+	cd $(notdir $@) && $(CURDIR)/$</configure \
+		--target=riscv$(XLEN)-unknown-linux-musl \
+		--prefix=$(INSTALL_DIR) \
+		--with-sysroot=$(SYSROOT) \
+		--disable-multilib \
+		--disable-nls
+	$(MAKE) -C $(notdir $@)
+	$(MAKE) -C $(notdir $@) install
+	mkdir -p $(dir $@) && touch $@
+
+stamps/build-linux-headers-musl:
+	mkdir -p $(SYSROOT)/usr/
+	cp -a $(srcdir)/linux-headers/include $(SYSROOT)/usr/
+	patch -d $(SYSROOT)/usr/ -p1 --no-backup-if-mismatch < $(srcdir)/patches/linux-headers-musl
+	mkdir -p $(dir $@) && touch $@
+
+stamps/build-musl-headers: src/musl stamps/build-gcc-musl-stage1
+	rm -rf $@ $(notdir $@)
+	mkdir $(notdir $@)
+	mkdir -p $(SYSROOT)/usr/lib $(SYSROOT)/lib
+	mkdir -p $(dir $@) && touch $@
+
+stamps/build-musl: src/musl stamps/build-gcc-musl-stage1
+	rm -rf $@ $(notdir $@)
+	mkdir $(notdir $@)
+	mkdir -p $(SYSROOT)/usr/lib $(SYSROOT)/lib
+	mkdir -p $(dir $@) && touch $@
+
+stamps/build-gcc-musl-stage1: src/gcc stamps/build-binutils-musl \
+                               stamps/build-linux-headers-musl
+	patch -d $(CURDIR)/$</ -p1 < $(srcdir)/patches/gcc-musl
+	rm -rf $@ $(notdir $@)
+	mkdir $(notdir $@)
+	cd $(notdir $@) && $(CURDIR)/$</configure \
+		--target=riscv$(XLEN)-unknown-linux-musl \
+		--prefix=$(INSTALL_DIR) \
+		--with-sysroot=$(SYSROOT) \
+		--with-newlib \
+		--without-headers \
+		--disable-shared \
+		--disable-threads \
+		--enable-tls \
+		--enable-languages=c \
+		--disable-libatomic \
+		--disable-libmudflap \
+		--disable-libssp \
+		--disable-libquadmath \
+		--disable-libgomp \
+		--disable-nls \
+		--disable-multilib \
+		--disable-bootstrap \
+		$(WITH_ARCH)
+	$(MAKE) -C $(notdir $@) inhibit-libc=true all-gcc
+	$(MAKE) -C $(notdir $@) inhibit-libc=true install-gcc
+	$(MAKE) -C $(notdir $@) inhibit-libc=true all-target-libgcc
+	$(MAKE) -C $(notdir $@) inhibit-libc=true install-target-libgcc
+	mkdir -p $(dir $@) && touch $@
+
+stamps/build-gcc-musl-stage2: src/gcc stamps/build-musl-linux \
+				stamps/build-musl-headers
+	patch -d $(CURDIR) -p1 < $(srcdir)/patches/gcc-musl
+	rm -rf $@ $(notdir $@)
+	mkdir $(notdir $@)
+	cd $(notdir $@) && $(CURDIR)/$</configure \
+		--target=riscv$(XLEN)-unknown-linux-musl \
+		--prefix=$(INSTALL_DIR) \
+		--with-sysroot=$(SYSROOT) \
+		--enable-shared \
+		--enable-tls \
+		--enable-languages=c,c++,fortran \
+		--disable-libmudflap \
+		--disable-libssp \
+		--disable-libquadmath \
+		--disable-nls \
+		--disable-multilib \
+		--disable-bootstrap \
+		$(WITH_ARCH)
+	$(MAKE) -C $(notdir $@)
+	$(MAKE) -C $(notdir $@) install
+	mkdir -p $(dir $@) && touch $@
 
 stamps/build-binutils-linux: src/binutils
 	rm -rf $@ $(notdir $@)

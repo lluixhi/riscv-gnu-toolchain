@@ -45,9 +45,19 @@ AC_ARG_ENABLE(linux,
         [enable_linux=no]
         )
 
+AC_ARG_ENABLE(musl,
+        [AS_HELP_STRING([--enable-musl],
+                [set musl as the default make target @<:@--disable-musl@:>@])],
+        [],
+        [enable_musl=no]
+        )
+
 AS_IF([test "x$enable_linux" != xno],
 	[AC_SUBST(default_target, linux)],
 	[AC_SUBST(default_target, newlib)])
+
+AS_IF([test "x$enable_musl" != xno],
+        [AC_SUBST(default_target, musl)],)
 
 AC_ARG_WITH(xlen,
 	[AS_HELP_STRING([--with-xlen=XLEN],

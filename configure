@@ -653,6 +653,7 @@ ac_subst_files=''
 ac_user_opts='
 enable_option_checking
 enable_linux
+enable_musl
 with_xlen
 with_arch
 enable_atomic
@@ -1278,6 +1279,7 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-linux          set linux as the default make target
                           [--disable-linux]
+  --enable-musl           set musl as the default make target [--disable-musl]
   --disable-atomic        disable use of atomic memory instructions in glibc
                           [--enable-atomic]
   --disable-float         use software floating point in glibc
@@ -3132,11 +3134,25 @@ else
 fi
 
 
+# Check whether --enable-musl was given.
+if test "${enable_musl+set}" = set; then :
+  enableval=$enable_musl;
+else
+  enable_musl=no
+
+fi
+
+
 if test "x$enable_linux" != xno; then :
   default_target=linux
 
 else
   default_target=newlib
+
+fi
+
+if test "x$enable_musl" != xno; then :
+  default_target=musl
 
 fi
 
