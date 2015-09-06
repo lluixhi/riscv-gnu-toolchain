@@ -141,16 +141,16 @@ stamps/build-linux-headers-musl:
 	patch -d $(SYSROOT)/usr/ -p1 --no-backup-if-mismatch < $(srcdir)/patches/linux-headers-musl
 	mkdir -p $(dir $@) && touch $@
 
-stamps/build-musl-headers: src/musl stamps/build-gcc-musl-stage1
-	rm -rf $@ $(notdir $@)
-	mkdir $(notdir $@)
-	mkdir -p $(SYSROOT)/usr/lib $(SYSROOT)/lib
-	mkdir -p $(dir $@) && touch $@
-
 stamps/build-musl: src/musl stamps/build-gcc-musl-stage1
-	rm -rf $@ $(notdir $@)
-	mkdir $(notdir $@)
+	rm -rf $@
 	mkdir -p $(SYSROOT)/usr/lib $(SYSROOT)/lib
+	cd $(CURDIR)/$</ && ./configure \
+		--target=riscv$(XLEN)-unknown-linux-musl \
+		--prefix=$(SYSROOT)/usr \
+		--syslibdir=$(SYSROOT)/lib \
+		--disable-gcc-wrapper
+	$(MAKE)
+	$(MAKE) install
 	mkdir -p $(dir $@) && touch $@
 
 stamps/build-gcc-musl-stage1: src/gcc stamps/build-binutils-musl \
@@ -183,8 +183,7 @@ stamps/build-gcc-musl-stage1: src/gcc stamps/build-binutils-musl \
 	$(MAKE) -C $(notdir $@) inhibit-libc=true install-target-libgcc
 	mkdir -p $(dir $@) && touch $@
 
-stamps/build-gcc-musl-stage2: src/gcc stamps/build-musl-linux \
-				stamps/build-musl-headers
+stamps/build-gcc-musl-stage2: src/gcc stamps/build-musl-linux
 	patch -d $(CURDIR) -p1 < $(srcdir)/patches/gcc-musl
 	rm -rf $@ $(notdir $@)
 	mkdir $(notdir $@)
