@@ -36,7 +36,7 @@ along with GCC; see the file COPYING3.  If not see
 #define SUBTARGET_CPP_SPEC "%{posix:-D_POSIX_SOURCE} %{pthread:-D_REENTRANT}"
 
 #define GLIBC_DYNAMIC_LINKER "/lib/ld.so.1"
-#define MUSL_DYNAMIC_LINKER "/lib/ld-musl-riscv.so.1"
+#define MUSL_DYNAMIC_LINKER "/lib/ld-musl-riscv%{RISCVEB:eb}%{msoft-float:-sf}.so.1"
 
 /* Borrowed from sparc/linux.h */
 #undef LINK_SPEC
