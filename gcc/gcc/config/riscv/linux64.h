@@ -29,8 +29,8 @@ along with GCC; see the file COPYING3.  If not see
 
 #define GLIBC_DYNAMIC_LINKER32 "/lib32/ld.so.1"
 #define GLIBC_DYNAMIC_LINKER64 "/lib/ld.so.1"
-#define MUSL_DYNAMIC_LINKER32 "/lib/ld-musl-riscv%{RISCVEB:eb}32%{msoft-float:-sf}.so.1"
-#define MUSL_DYNAMIC_LINKER64 "/lib/ld-musl-riscv%{RISCVEB:eb}64%{msoft-float:-sf}.so.1"
+#define MUSL_DYNAMIC_LINKER32 "/lib/ld-musl-riscv32%{RISCVEB:eb}%{msoft-float:-sf}.so.1"
+#define MUSL_DYNAMIC_LINKER64 "/lib/ld-musl-riscv64%{RISCVEB:eb}%{msoft-float:-sf}.so.1"
 
 #undef LINK_SPEC
 #define LINK_SPEC "\
