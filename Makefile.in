@@ -183,7 +183,7 @@ stamps/build-gcc-musl-stage1: src/gcc stamps/build-binutils-musl \
 	$(MAKE) -C $(notdir $@) inhibit-libc=true install-target-libgcc
 	mkdir -p $(dir $@) && touch $@
 
-stamps/build-gcc-musl-stage2: src/gcc stamps/build-musl-linux
+stamps/build-gcc-musl-stage2: src/gcc stamps/build-musl
 	patch -d $(CURDIR) -p1 < $(srcdir)/patches/gcc-musl
 	rm -rf $@ $(notdir $@)
 	mkdir $(notdir $@)
