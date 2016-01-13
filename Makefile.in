@@ -7,7 +7,7 @@ gcc_version := 5.3.0
 binutils_version := 2.26
 glibc_version := 2.23
 newlib_version := 2.2.0
-musl_version := 1.1.11
+musl_version := 1.1.12
 
 DISTDIR ?= /var/cache/distfiles
 GNU_MIRROR := http://mirrors.kernel.org/gnu
