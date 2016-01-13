@@ -148,7 +148,8 @@ stamps/build-musl: src/musl stamps/build-gcc-musl-stage1
 		--target=riscv$(XLEN)-unknown-linux-musl \
 		--prefix=$(SYSROOT)/usr \
 		--syslibdir=$(SYSROOT)/lib \
-		--disable-gcc-wrapper
+		--disable-gcc-wrapper \
+		CC=riscv$(XLEN)-unknown-linux-musl-gcc
 	$(MAKE)
 	$(MAKE) install
 	mkdir -p $(dir $@) && touch $@
