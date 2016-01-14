@@ -150,8 +150,8 @@ stamps/build-musl: src/musl stamps/build-gcc-musl-stage1
 		--syslibdir=$(SYSROOT)/lib \
 		--disable-gcc-wrapper \
 		CC=riscv$(XLEN)-unknown-linux-musl-gcc
-	$(MAKE)
-	$(MAKE) install
+	cd $(CURDIR)/$</ && $(MAKE)
+	cd $(CURDIR)/$</ && $(MAKE) install
 	mkdir -p $(dir $@) && touch $@
 
 stamps/build-gcc-musl-stage1: src/gcc stamps/build-binutils-musl \
@@ -185,7 +185,7 @@ stamps/build-gcc-musl-stage1: src/gcc stamps/build-binutils-musl \
 	mkdir -p $(dir $@) && touch $@
 
 stamps/build-gcc-musl-stage2: src/gcc stamps/build-musl
-	patch -d $(CURDIR) -p1 < $(srcdir)/patches/gcc-musl
+	patch -d $(CURDIR)/$</ -p1 < $(srcdir)/patches/gcc-musl
 	rm -rf $@ $(notdir $@)
 	mkdir $(notdir $@)
 	cd $(notdir $@) && $(CURDIR)/$</configure \
