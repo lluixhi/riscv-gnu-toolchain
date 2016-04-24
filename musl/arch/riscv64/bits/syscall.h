@@ -265,10 +265,10 @@
 #define __NR_memfd_create 279
 #define __NR_bpf 280
 #define __NR_execveat 281
-#define __NR_userfaultfd 323
-#define __NR_membarrier 324
-#define __NR_mlock2 325
-#define __NR_copy_file_range 326
+#define __NR_userfaultfd 282
+#define __NR_membarrier 283
+#define __NR_mlock2 284
+#define __NR_copy_file_range 285
 #define __NR_sysriscv  __NR_arch_specific_syscall
 
 #define SYS_io_setup __NR_io_setup
