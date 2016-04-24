@@ -7,7 +7,7 @@ gcc_version := 5.3.0
 binutils_version := 2.26
 glibc_version := 2.23
 newlib_version := 2.2.0
-musl_version := 1.1.12
+musl_version := 1.1.14
 
 DISTDIR ?= /var/cache/distfiles
 GNU_MIRROR := http://mirrors.kernel.org/gnu
@@ -142,16 +142,17 @@ stamps/build-linux-headers-musl:
 	mkdir -p $(dir $@) && touch $@
 
 stamps/build-musl: src/musl stamps/build-gcc-musl-stage1
-	rm -rf $@
+	rm -rf $@ $(notdir $@)
+	mkdir $(notdir $@)
 	mkdir -p $(SYSROOT)/usr/lib $(SYSROOT)/lib
-	cd $(CURDIR)/$</ && ./configure \
+	cd $(notdir $@) && $(CURDIR)/$</configure \
 		--target=riscv$(XLEN)-unknown-linux-musl \
 		--prefix=$(SYSROOT)/usr \
 		--syslibdir=$(SYSROOT)/lib \
 		--disable-gcc-wrapper \
 		CC=riscv$(XLEN)-unknown-linux-musl-gcc
-	cd $(CURDIR)/$</ && $(MAKE)
-	cd $(CURDIR)/$</ && $(MAKE) install
+	$(MAKE) -C $(notdir $@)
+	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
 
 stamps/build-gcc-musl-stage1: src/gcc stamps/build-binutils-musl \

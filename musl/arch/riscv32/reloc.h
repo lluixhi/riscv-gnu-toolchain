@@ -14,6 +14,10 @@
 
 #define LDSO_ARCH "riscv" ENDIAN_SUFFIX FP_SUFFIX
 
+#define NO_LEGACY_INITFINI
+
+#define TPOFF_K 8
+
 #define REL_SYMBOLIC    R_RISCV_32
 #define REL_PLT         R_RISCV_JUMP_SLOT
 #define REL_RELATIVE    R_RISCV_RELATIVE

@@ -19,11 +19,26 @@ longjmp:
         ld s9,    72(a0)
         ld s10,   80(a0)
         ld s11,   88(a0)
-        ld tp,    96(a0)
-        ld sp,    104(a0)
-        ld ra,    112(a0)
+        ld sp,    96(a0)
+        ld ra,    104(a0)
+
+#ifndef __riscv_soft_float
+        fld fs0,  112(a0)
+        fld fs1,  120(a0)
+        fld fs2,  128(a0)
+        fld fs3,  136(a0)
+        fld fs3,  144(a0)
+        fld fs4,  152(a0)
+        fld fs5,  160(a0)
+        fld fs6,  168(a0)
+        fld fs7,  176(a0)
+        fld fs8,  184(a0)
+        fld fs9,  192(a0)
+        fld fs10, 200(a0)
+        fld fs11, 208(a0)
+#endif
 
         mv a0, a1
         bnez a1, 1f
         li a0, 1
-1:      jr ra
+1:      ret
